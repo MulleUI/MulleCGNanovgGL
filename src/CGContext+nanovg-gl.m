@@ -203,7 +203,7 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
 {
    return( [[[CGContext alloc] initWithOSGraphicsContext:nil
                                                 shareID:0
-                                                options:UIGraphicsNoDrawing] autorelease]);
+                                                options:UIGraphicsPathOnly] autorelease]);
 }
 
 @end
@@ -356,6 +356,7 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
    flags |= (options & UIGraphicsUseStencilStrokes) ? NVG_STENCIL_STROKES : 0;
    flags |= (options & UIGraphicsUseClearType)      ? NVG_CLEARTYPE : 0;
    flags |= (options & UIGraphicsNoDrawing)         ? NVG_NO_DRAWING : 0;
+   flags |= (options & UIGraphicsPathOnly)          ? NVG_PATH_ONLY  : 0;
 #ifdef DEBUG
    flags |= NVG_DEBUG;
 #endif

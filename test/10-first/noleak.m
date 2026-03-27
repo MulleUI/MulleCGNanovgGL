@@ -1,4 +1,4 @@
-#import <MulleCGNanoVG_GL/MulleCGNanoVG_GL.h>
+#import <MulleCGNanovgGL/MulleCGNanovgGL.h>
 
 
 int   main( int argc, char *argv[])

@@ -1,4 +1,4 @@
-#import <MulleCGNanoVG_GL/MulleCGNanoVG_GL.h>
+#import <MulleCGNanovgGL/MulleCGNanovgGL.h>
 #import <MulleObjC/NSDebug.h>
 
 //
@@ -9,7 +9,7 @@
 // possible, meaning make all object properties (and other instance variable
 // references to objects) non-threadsafe  (whereit makes sense).
 //
-@implementation MulleCGNanoVG_GL (TAOTest)
+@implementation MulleObjCDeps (TAOTest)
 
 - (void) mulleTAOTestSetup:(id) arg
 {
@@ -42,7 +42,7 @@
 int   main( int argc, char *argv[])
 {
    // either add all classes here, or copy this test for each class
-   MulleObjCTAOTest( [MulleCGNanoVG_GL class], nil);
+   MulleObjCTAOTest( [MulleObjCDeps class], nil);
 
    return( 0);
 }

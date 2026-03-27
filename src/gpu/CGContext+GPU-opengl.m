@@ -9,6 +9,7 @@
 
 #import <MulleCGNanovg/CGContext+nanovg.h>
 #import <MulleCG/CGContext+DebugPrivate.h>
+#import <MulleCG/CGContext+UIGraphicsDrawing.h>
 #import <MulleCGNanovg/CGContext+Drawing.h>
 #import <MulleCG/CGContext+CGImage.h>
 #import <MulleCG/CGContext+CGFramebuffer.h>
@@ -407,9 +408,12 @@ void   _CGContextBlitFramebufferImage( CGContext *self,
       return;
    }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-method-access"
    [super blitRect:rect
              image:image
              scale:scale];
+#pragma clang diagnostic pop
 }
 
 @end

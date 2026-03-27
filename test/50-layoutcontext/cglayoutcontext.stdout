@@ -1,0 +1,18 @@
+bounds: -1 -8 129 16
+vbounds: -1 -9 129 14
+15:
+	{ .str[0] ='V' .x = 0, .minx = -1, .maxx = 11, .miny = -9, .maxy = 5 }
+	{ .str[0] ='f' .x = 10, .minx = 9, .maxx = 18, .miny = -9, .maxy = 5 }
+	{ .str[0] ='l' .x = 16, .minx = 16, .maxx = 20, .miny = -9, .maxy = 5 }
+	{ .str[0] =' ' .x = 20, .minx = 19, .maxx = 24, .miny = 3, .maxy = 5 }
+	{ .str[0] ='B' .x = 24, .minx = 24, .maxx = 35, .miny = -9, .maxy = 5 }
+	{ .str[0] ='o' .x = 34, .minx = 33, .maxx = 44, .miny = -6, .maxy = 5 }
+	{ .str[0] ='c' .x = 44, .minx = 43, .maxx = 53, .miny = -6, .maxy = 5 }
+	{ .str[0] ='h' .x = 52, .minx = 52, .maxx = 62, .miny = -9, .maxy = 5 }
+	{ .str[0] ='u' .x = 62, .minx = 62, .maxx = 72, .miny = -6, .maxy = 5 }
+	{ .str[0] ='m' .x = 72, .minx = 72, .maxx = 87, .miny = -6, .maxy = 5 }
+	{ .str[0] =' ' .x = 87, .minx = 86, .maxx = 91, .miny = 3, .maxy = 5 }
+	{ .str[0] ='1' .x = 91, .minx = 91, .maxx = 100, .miny = -9, .maxy = 5 }
+	{ .str[0] ='8' .x = 100, .minx = 99, .maxx = 110, .miny = -9, .maxy = 5 }
+	{ .str[0] ='4' .x = 109, .minx = 108, .maxx = 119, .miny = -9, .maxy = 5 }
+	{ .str[0] ='8' .x = 118, .minx = 117, .maxx = 128, .miny = -9, .maxy = 5 }

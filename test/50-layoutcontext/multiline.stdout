@@ -1,0 +1,25 @@
+NSLineBreakByWordWrapping breakRowWidth: 50:
+	8: -1 0 64 128
+		"VfL" w=24 minx=-1 maxx=25
+		"Bochu" w=63 minx=0 maxx=63
+		"m" w=15 minx=0 maxx=15
+		"1848" w=36 minx=0 maxx=37
+		"vs." w=20 minx=-1 maxx=21
+		"Werde" w=57 minx=-1 maxx=58
+		"r" w=7 minx=0 maxx=8
+		"Breme" w=60 minx=0 maxx=60
+
+NSLineBreakByWordWrapping breakRowWidth: 100:
+	5: -1 0 92 80
+		"VfL Bochum" w=91 minx=-1 maxx=91
+		"1848" w=36 minx=0 maxx=37
+		"vs." w=20 minx=-1 maxx=21
+		"Werder" w=57 minx=-1 maxx=58
+		"Bremen" w=60 minx=0 maxx=60
+
+NSLineBreakByWordWrapping breakRowWidth: 150:
+	3: -1 0 133 48
+		"VfL Bochum 1848" w=131 minx=-1 maxx=132
+		"vs." w=20 minx=-1 maxx=21
+		"Werder Bremen" w=121 minx=-1 maxx=121
+

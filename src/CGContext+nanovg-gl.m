@@ -201,9 +201,25 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
 
 + (CGContext *) createPathContext
 {
-   return( [[[CGContext alloc] initWithOSGraphicsContext:nil
-                                                shareID:0
-                                                options:UIGraphicsPathOnly] autorelease]);
+   struct NVGcontext  *nvg;
+   CGContext          *context;
+
+#ifdef NANOVG_GL3_IMPLEMENTATION
+   nvg = nvgCreateGL3( NVG_PATH_ONLY);
+#endif
+#ifdef NANOVG_GLES2_IMPLEMENTATION
+   nvg = nvgCreateGLES2( NVG_PATH_ONLY);
+#endif
+#ifdef NANOVG_GLES3_IMPLEMENTATION
+   nvg = nvgCreateGLES3( NVG_PATH_ONLY);
+#endif
+   assert( nvg);
+
+   context = [[[self alloc] _initAsPathContext] autorelease];
+   [context _setNVGContext:nvg
+            functionTable:&CGNanoVGFunctionTable
+     backendFunctionTable:&CGNanoVGBackendFunctionTable];
+   return( context);
 }
 
 @end

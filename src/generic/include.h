@@ -47,16 +47,18 @@
 // MULLE_CG_NANOVG_GL_GLOBAL
 // void   aGlobalFunction( void) {}
 //
-#ifdef MULLE_CG_NANOVG_GL_BUILD
-# define MULLE_CG_NANOVG_GL_GLOBAL        MULLE_C_GLOBAL
-# define MULLE_CG_NANOVG_GL_GLOBAL_VAR    MULLE_C_GLOBAL_VAR
-#else
-# if defined( MULLE_CG_NANOVG_GL_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_CG_NANOVG_GL_INCLUDE_STATIC))
-#  define MULLE_CG_NANOVG_GL_GLOBAL       MULLE_C_EXTERN_GLOBAL
+#ifndef MULLE_CG_NANOVG_GL_GLOBAL
+# ifdef MULLE_CG_NANOVG_GL_BUILD
+#  define MULLE_CG_NANOVG_GL_GLOBAL        MULLE_C_GLOBAL
+#  define MULLE_CG_NANOVG_GL_GLOBAL_VAR    MULLE_C_GLOBAL_VAR
 # else
-#  define MULLE_CG_NANOVG_GL_GLOBAL       extern
+#  if defined( MULLE_CG_NANOVG_GL_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_CG_NANOVG_GL_INCLUDE_STATIC))
+#   define MULLE_CG_NANOVG_GL_GLOBAL       MULLE_C_EXTERN_GLOBAL
+#  else
+#   define MULLE_CG_NANOVG_GL_GLOBAL       extern
+#  endif
+#  define MULLE_CG_NANOVG_GL_GLOBAL_VAR
 # endif
-# define MULLE_CG_NANOVG_GL_GLOBAL_VAR
 #endif
 
 /* You can add some more include statements here */

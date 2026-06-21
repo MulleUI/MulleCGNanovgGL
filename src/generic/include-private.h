@@ -63,6 +63,4 @@
 
 #endif /* MULLE_CG_BACKEND_OPENGL */
 
-#include "nanovg-backend-private.h"
-
 #endif

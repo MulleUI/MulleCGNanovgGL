@@ -1,11 +1,8 @@
 //
 // Copyright (c) <|YEAR|> Nat!, Mulle kybernetiK
 //
-#import <MulleCGNanovg/CGFramebuffer+GPU.h>
 
-#import "include-private.h"
-
-#import <MulleCGNanovg/CGContext+nanovg.h>
+#import "import-private.h"
 
 
 @implementation CGFramebuffer ( OpenGL)
@@ -15,7 +12,7 @@
                           layerRenderInfo:(struct CGFramebufferRenderInfo *) memo
 {
 #ifdef _CGLMACRO_H
-   CGLContextObj  cgl_ctx = CGLGetCurrentContext();
+   CGLContextObj       cgl_ctx = CGLGetCurrentContext();
 #endif
    CGFloat             rgba[ 4];
    CGPixelSize         bitmapSize;

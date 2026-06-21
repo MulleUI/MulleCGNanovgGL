@@ -3,37 +3,17 @@
 //
 #define MULLE_CG_USE_APPLE_GL2
 
-#import <MulleCGNanovg/CGContext+GPU.h>
+#import "import-private.h"
 
-#import "include-private.h"
-
-#import <MulleCGNanovg/CGContext+nanovg.h>
 #import <MulleCG/CGContext+DebugPrivate.h>
-#import <MulleCG/CGContext+UIGraphicsDrawing.h>
-#import <MulleCGNanovg/CGContext+Drawing.h>
-#import <MulleCG/CGContext+CGImage.h>
-#import <MulleCG/CGContext+CGFramebuffer.h>
 #import <MulleCG/CGContext+CGFramebuffer+Private.h>
-#import <MulleCG/CGLayoutContext.h>
-#import <MulleCG/CGImage.h>
-#import <MulleCG/CGFramebuffer.h>
-#import <MulleCG/include.h>
 #include <ctype.h>
 
 
-@implementation CGImage ( OpenGL)
-
-- (GLint) gpuSamplerType
-{
-   return( [self isMultiSample]
-           ? GL_TEXTURE_2D_MULTISAMPLE
-           : GL_TEXTURE_2D);
-}
-
-@end
+@implementation CGContext ( GPU)
 
 
-@implementation CGContext ( OpenGL)
+@dependency CGContext( UIGraphicsDrawing);
 
 
 - (CGPixelSize) bitmapSizeOfFramebuffer:(struct CGContextFramebuffer) fb
@@ -90,6 +70,31 @@
 }
 
 
+- (CGPixelRect) viewport
+{
+   return( _viewport);
+}
+
+
+- (void) setViewport:(CGPixelRect) rect
+{
+   _viewport = rect;
+
+   if( rect.size.width == -1)
+   {
+      glViewport( _currentFrameInfo.viewportFrame.origin.x,
+                  _currentFrameInfo.viewportFrame.origin.y,
+                  _currentFrameInfo.viewportFrame.size.width,
+                  _currentFrameInfo.viewportFrame.size.height);
+   }
+   else
+   {
+      glViewport( rect.origin.x, rect.origin.y,
+                  rect.size.width, rect.size.height);
+   }
+}
+
+
 - (void) bindDefaultGPUFramebuffer
 {
    CGContextRenderLog( "");
@@ -142,15 +147,18 @@
      toTextureUnit:(NSUInteger) index
 {
    void   *gpuTexture;
+   GLint   samplerType;
 
    CGContextRenderLog( "%#@ texture unit: %tu", image, index);
 
-   gpuTexture = [self gpuTextureForImageID:[image textureID]];
+   gpuTexture  = [self gpuTextureForImageID:[image textureID]];
+   samplerType = [image isMultiSample] ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 
    assert( GL_TEXTURE15 == GL_TEXTURE0 + 15);
    glActiveTexture( GL_TEXTURE0 + index);
    CGContextCheckBackendError( self, "glActiveTexture");
-   glBindTexture( [image gpuSamplerType], (GLuint) (uintptr_t) gpuTexture);
+   glBindTexture( samplerType, (GLuint) (uintptr_t) gpuTexture);
+   glBindTexture( samplerType, (GLuint) (uintptr_t) gpuTexture);
    CGContextCheckBackendError( self, "glBindTexture");
 }
 
@@ -360,34 +368,44 @@ void   _CGContextBlitFramebufferImage( CGContext *self,
                                        BOOL interpolate)
 {
 #if defined( GL_ES_VERSION_3_0) || defined( GL_VERSION_3_0)
-   GLuint                        tmpFramebuffer;
-   struct CGContextFramebuffer   tmpfb;
-   GLuint                        samplerType;
-   void                          *gpuTexture;
-   BOOL                          isMultiSample;
+   GLuint        tmpFBO;
+   GLuint        samplerType;
+   void          *gpuTexture;
+   BOOL          isMultiSample;
+   CGPixelSize   srcSize;
 
    CGContextRenderLog( "");
 
-   glGenFramebuffers( 1, &tmpFramebuffer);
-   CGContextCheckBackendError( self, "glGenFramebuffers");
-
    isMultiSample = [src isMultiSample];
-   tmpfb          = CGContextFramebufferMakeWithOpenGLHandle( (void *) (uintptr_t) tmpFramebuffer,
-                                                              isMultiSample);
-   samplerType = isMultiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-   gpuTexture  = [self gpuTextureForTextureID:[src textureID]];
+   samplerType   = isMultiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+   gpuTexture    = [self gpuTextureForTextureID:[src textureID]];
+   srcSize       = [src bitmapSize];
 
-   _CGContextBindFramebuffer( self, CGContextFramebufferModeDefault, tmpfb);
-   glFramebufferTexture2D( GL_FRAMEBUFFER,
+   // create a temporary FBO, attach the source texture, blit to dst
+   glGenFramebuffers( 1, &tmpFBO);
+   glBindFramebuffer( GL_READ_FRAMEBUFFER, tmpFBO);
+   glFramebufferTexture2D( GL_READ_FRAMEBUFFER,
                            GL_COLOR_ATTACHMENT0,
                            samplerType,
                            (GLuint) (uintptr_t) gpuTexture,
                            0);
-   // this will bind dst
-   _CGContextBlitFramebufferFramebuffer( self, dst, rect, tmpfb, interpolate);
+   CGContextCheckBackendError( self, "setup read framebuffer");
 
-   glDeleteFramebuffers( 1, &tmpFramebuffer);
-   CGContextCheckBackendError( self, "glDeleteFramebuffers");
+   // bind dst as write target
+   glBindFramebuffer( GL_DRAW_FRAMEBUFFER, (GLuint) (uintptr_t) dst.handle);
+
+   glBlitFramebuffer( 0, 0, srcSize.width, srcSize.height,
+                      (int) rect.origin.x, (int) rect.origin.y,
+                      (int) (rect.origin.x + rect.size.width),
+                      (int) (rect.origin.y + rect.size.height),
+                      GL_COLOR_BUFFER_BIT,
+                      interpolate ? GL_LINEAR : GL_NEAREST);
+   CGContextCheckBackendError( self, "glBlitFramebuffer");
+
+   // cleanup
+   glBindFramebuffer( GL_READ_FRAMEBUFFER, (GLuint) (uintptr_t) dst.handle);
+   glDeleteFramebuffers( 1, &tmpFBO);
+   CGContextCheckBackendError( self, "cleanup");
 #else
    abort();
 #endif
@@ -399,6 +417,7 @@ void   _CGContextBlitFramebufferImage( CGContext *self,
             scale:(BOOL) scale
 {
    struct CGContextFramebuffer   dst;
+   CGDrawableOptions             *options;
 
    if( [image isMultiSample])
    {
@@ -408,12 +427,15 @@ void   _CGContextBlitFramebufferImage( CGContext *self,
       return;
    }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-method-access"
-   [super blitRect:rect
-             image:image
-             scale:scale];
-#pragma clang diagnostic pop
+   CGContextSave( self);
+   {
+      CGContextGlobalCompositeOperation( self, CGCompositeOperationCopy);
+      options = scale ? &CGDrawableOptionsScaleToFit : &CGDrawableOptionsDefault;
+      [image drawRect:rect
+              options:options
+              context:self];
+   }
+   CGContextRestore( self);
 }
 
 @end

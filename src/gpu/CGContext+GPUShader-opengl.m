@@ -1,20 +1,18 @@
 //
 // Copyright (c) 2023 Nat!, Mulle kybernetiK
 //
-#define _POSIX_C_SOURCE 200809L // for strtok_r
+#ifndef _POSIX_C_SOURCE
+# define _POSIX_C_SOURCE 200809L // for strtok_r
+#endif
 
-#import <MulleCGNanovg/CGContext+GPUShader.h>
 
-#import "include-private.h"
-
-#import <MulleCGNanovg/CGContext+GPU.h>
-#import <MulleCGNanovg/CGContext+nanovg.h>
+#import "import-private.h"
 
 #include <ctype.h>
 #include <string.h>
 
 
-@implementation CGContext ( OpenGLShader)
+@implementation CGContext ( GPUShader)
 
 static char  *CGShaderTypeUTF8String( int type)
 {

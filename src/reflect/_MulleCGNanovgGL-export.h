@@ -13,6 +13,7 @@
 #define _mulle_cg_nanovg_g_l__export_h__
 
 
+#import "CGBackendFunctionTable+nanovg.h"
 #import "MulleObjCDeps+MulleCGNanovgGL.h"
 
 

@@ -92,7 +92,7 @@ elseif( "${MULLE_PROJECT_TYPE}" STREQUAL "Library")
    )
    # Only CGContext+nanovg-gl.m needs to emit the nanovg GL implementation
    set_source_files_properties( src/CGContext+nanovg-gl.m PROPERTIES
-      COMPILE_DEFINITIONS "DEFINE_NANOVG_GL_IMPLEMENTATION"
+      COMPILE_DEFINITIONS "DEFINE_NANOVG_GL_IMPLEMENTATION;NANOVG_GL_EXTENSION_SOURCE=\"${CMAKE_CURRENT_SOURCE_DIR}/src/nanovg_gl-extensions.inc\""
    )
    target_compile_options( "${LIBRARY_COMPILE_TARGET}" PRIVATE
       -include mulle-nanovg/nanovg.h  # force nanovg.h before any header so NVGcolor is defined first

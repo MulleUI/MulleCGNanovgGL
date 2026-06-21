@@ -34,10 +34,10 @@ src/generic/include-private.h
 )
 
 #
-# contents selected with patternfile ??-header--private-headers
+# contents selected with patternfile ??-header--project-only-headers
 #
-set( PRIVATE_HEADERS
-src/nanovg-backend-private.h
+set( PROJECT_ONLY_HEADERS
+src/nanovg_gl-extensions.inc
 )
 
 #
@@ -62,6 +62,7 @@ src/generic/include.h
 # contents selected with patternfile ??-header--public-headers
 #
 set( PUBLIC_HEADERS
+src/CGBackendFunctionTable+nanovg.h
 src/MulleCGNanovgGL.h
 src/generic/MulleObjCDeps+MulleCGNanovgGL.h
 src/glad/gl.h

@@ -14,6 +14,8 @@
 
 #import "import-private.h"
 
+#import "CGBackendFunctionTable+nanovg.h"
+
 #import <MulleCG/CGContext+DebugPrivate.h>
 #include <ctype.h>
 
@@ -21,24 +23,87 @@
 MULLE_CG_NANOVG_GLOBAL
 CGFunctionTable   CGNanoVGFunctionTable;
 
-MULLE_CG_GLOBAL
-mulle_thread_mutex_t   CGLayoutContextFreeTypeLock;
+extern mulle_thread_mutex_t   CGLayoutContextFreeTypeLock;
 
 
 @implementation CGLayoutContext ( OpenGL)
 
+@dependency CGLayoutContext( nanovg);
 
 
 #if defined( _WIN32) || defined( __MINGW32__)
 extern int   mulle_glad_load_gl( void);
 #endif
 
+
+- (void) _initFontNanovg
+{
+   NSUInteger   flags;
+
+   flags = NVG_FONT_ONLY;
+#ifdef DEBUG
+   flags |= NVG_DEBUG;
+#endif
+
+   mulle_thread_mutex_do( CGLayoutContextFreeTypeLock)
+   {
+#ifdef NANOVG_GL3_IMPLEMENTATION
+      _fontContext = nvgCreateGL3( flags);
+#else
+# ifdef NANOVG_GLES2_IMPLEMENTATION
+      _fontContext = nvgCreateGLES2( flags);
+# else
+#  ifdef NANOVG_GLES3_IMPLEMENTATION
+      _fontContext = nvgCreateGLES3( flags);
+#  else
+#   ifdef NANOVG_D3D11_IMPLEMENTATION
+      _fontContext = nvgCreateD3D11( NULL, 0);
+#   else
+#    error "Any of NANOVG_GL3/GLES2/GLES3/D3D11_IMPLEMENTATION must be defined"
+#   endif
+#  endif
+# endif
+#endif
+   }
+   assert( _fontContext);
+   // _fontFunctions is set by _initFontBackend via CGNanoVGFontFunctionTable
+}
+
+
+- (void) _doneFontBackend
+{
+   if( _fontContext && _ownsFontContext)
+   {
+      mulle_thread_mutex_do( CGLayoutContextFreeTypeLock)
+      {
+#ifdef NANOVG_GL3_IMPLEMENTATION
+         nvgDeleteGL3( _fontContext);
+#else
+# ifdef NANOVG_GLES2_IMPLEMENTATION
+         nvgDeleteGLES2( _fontContext);
+# else
+#  ifdef NANOVG_GLES3_IMPLEMENTATION
+         nvgDeleteGLES3( _fontContext);
+#  endif
+# endif
+#endif
+      }
+   }
+   _fontContext     = NULL;
+   _ownsFontContext = NO;
+}
+
+@end
+
+
+@implementation CGContext ( nanovgGLInit)
+
 - (void) _initNanovg
 {
    mulle_thread_mutex_do( CGLayoutContextFreeTypeLock)
    {
 #if defined( _WIN32) || defined( __MINGW32__)
-      if( ! (_backendFlags & (NVG_NO_DRAWING|NVG_FONT_ONLY)))
+      if( ! (_cgBackend.flags & (NVG_NO_DRAWING|NVG_FONT_ONLY)))
       {
          if( ! mulle_glad_load_gl())
          {
@@ -48,17 +113,17 @@ extern int   mulle_glad_load_gl( void);
       }
 #endif
 #ifdef NANOVG_GL3_IMPLEMENTATION
-      _cgBackend.context  = nvgCreateGL3( _backendFlags);
+      _cgBackend.context  = nvgCreateGL3( _cgBackend.flags);
 #else
 # ifdef NANOVG_GLES2_IMPLEMENTATION
-      _cgBackend.context  = nvgCreateGLES2( _backendFlags);
+      _cgBackend.context  = nvgCreateGLES2( _cgBackend.flags);
 # else
 #  ifdef NANOVG_GLES3_IMPLEMENTATION
-      _cgBackend.context  = nvgCreateGLES3( _backendFlags);
+      _cgBackend.context  = nvgCreateGLES3( _cgBackend.flags);
 #  else
 #   ifdef NANOVG_D3D11_IMPLEMENTATION
-      assert( _backendDevicePointer);
-      _cgBackend.context  = nvgCreateD3D11( _backendDevicePointer, (_backendFlags & NVG_ANTIALIAS) ? 1 : 0);
+      assert( _cgBackend.devicePointer);
+      _cgBackend.context  = nvgCreateD3D11( _cgBackend.devicePointer, (_cgBackend.flags & NVG_ANTIALIAS) ? 1 : 0);
 #   else
 #    error "Any of NANOVG_GL3/GLES2/GLES3/D3D11_IMPLEMENTATION must be defined"
 #   endif
@@ -67,7 +132,8 @@ extern int   mulle_glad_load_gl( void);
 #endif
    }
    assert( _cgBackend.context);
-   _cgBackend.functions = CGNanoVGFunctionTable, _cgBackend.backendFunctions = CGNanoVGBackendFunctionTable;
+
+   _cgBackend.backendFunctions = CGNanoVGBackendFunctionTable;
 }
 
 
@@ -100,10 +166,18 @@ extern int   mulle_glad_load_gl( void);
    }
 }
 
+
+- (void) _doneGraphicsBackend
+{
+   [self _doneNanovg];
+}
+
 @end
 
 
 @implementation CGContext( Errors)
+
+@dependency CGContext( BackendErrors);
 
 static char   *_CGNVGBackendErrorShortUTF8String( void *error)
 {
@@ -215,10 +289,10 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
 #endif
    assert( nvg);
 
-   context = [[[self alloc] _initAsPathContext] autorelease];
+   context = (CGContext *) [[(CGContext *) [self alloc] _initAsPathContext] autorelease];
    [context _setNVGContext:nvg
             functionTable:&CGNanoVGFunctionTable
-     backendFunctionTable:&CGNanoVGBackendFunctionTable];
+     backendFunctionTable:NULL]; // have none
    return( context);
 }
 
@@ -282,10 +356,10 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
 
    s = MulleObjC_asprintf( "%s%s%s%s%s",
                            [[self class] nanoVGBackendUTF8String],
-                           _backendFlags & NVG_ANTIALIAS ? " EdgeAA" : "",
-                           _backendFlags & NVG_CLEARTYPE ? " ClearType" : "",
-                           _backendFlags & NVG_STENCIL_STROKES ? " Stencil" : "",
-                           _backendFlags & NVG_MSAA ? " MSAA" : "");
+                           _cgBackend.flags & NVG_ANTIALIAS ? " EdgeAA" : "",
+                           _cgBackend.flags & NVG_CLEARTYPE ? " ClearType" : "",
+                           _cgBackend.flags & NVG_STENCIL_STROKES ? " Stencil" : "",
+                           _cgBackend.flags & NVG_MSAA ? " MSAA" : "");
    return( s);
 }
 
@@ -296,6 +370,8 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
 #endif
 
 - (void) _initNanoVGWithGraphicsOptions:(UIGraphicsOptions) options
+                         nameUTF8String:(char *) nameUTF8String
+
 {
    NSUInteger   flags;
 
@@ -381,17 +457,26 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
    flags |= (options & UIGraphicsUseMSAA) ? NVG_MSAA : 0;
 #endif
 
-   _backendFlags = flags;
-   [self _initBackend];
+   _cgBackend.flags = flags;
+
+#ifdef NANOVG_HAVE_MSAA
+   // When MSAA is active, offscreen render framebuffers should also be MSAA
+   // so nanovg renders into a multisampled texture. The resolve (MSAA -> plain)
+   // happens at endRender time, within the same context, before the framebuffer
+   // is handed off to the display context via provideRenderedFramebuffer:.
+   _renderLayerTextureFlags = (flags & NVG_MSAA) ? CGImageFlagMSAA : 0;
+#endif
+
+   [self _initGraphicsBackend];
 
    assert( _cgBackend.context);
 #ifdef DEBUG
-   fprintf( stderr, "nanovg context          : %s\n", [self nanovgInfoUTF8String]);
+   mulle_fprintf( stderr, "nanovg context \"%s\" : %s\n", nameUTF8String, [self nanovgInfoUTF8String]);
 #endif
 
    // we always set this
 #ifndef NVG_TRACECODE_DISABLED
-   nvgTraceName( _cgBackend.context, _nameUTF8String);
+   nvgTraceName( _cgBackend.context, nameUTF8String);
 #endif
    if( options & UIGraphicsTraceDrawCalls)
    {
@@ -555,7 +640,7 @@ static char   *_CGNVGBackendErrorUTF8String( void *error)
    bitmap.bytes      = mulle_allocator_malloc( bitmap.allocator, size);
    bitmap.info       = CGBitmapInfoMake( bitmapSize, 0, encoding);
 
-   samplerType       = [image gpuSamplerType];
+   samplerType       = [image isMultiSample] ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 
    // glGetTexImage is only available in GL compatibility profile, not core profile.
    // Check GL_CONTEXT_PROFILE_MASK to decide which path to use.

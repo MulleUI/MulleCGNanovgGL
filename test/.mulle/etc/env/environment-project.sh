@@ -14,7 +14,7 @@ export PROJECT_NAME="MulleCGNanovgGL"
 #
 #
 #
-export TEST_PROJECT_NAME="MulleCGNanoVG_GL"
+export TEST_PROJECT_NAME="MulleCGNanovgGL"
 
 
 #

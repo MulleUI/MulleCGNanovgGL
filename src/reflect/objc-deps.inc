@@ -2,6 +2,7 @@
       { @selector( CGContext), @selector( Errors) },      // 80b7b568;CGContext;9ed60a6e;Errors
       { @selector( CGContext), @selector( GPU) },      // 80b7b568;CGContext;a1608358;GPU
       { @selector( CGContext), @selector( GPUShader) },      // 80b7b568;CGContext;a5045f83;GPUShader
+      { @selector( CGContext), @selector( ImageEffectFuture) },      // 80b7b568;CGContext;f2aa450e;ImageEffectFuture
       { @selector( CGContext), @selector( nanovgGL) },      // 80b7b568;CGContext;3bd5fbf6;nanovgGL
       { @selector( CGContext), @selector( nanovgGLInit) },      // 80b7b568;CGContext;26c2f999;nanovgGLInit
       { @selector( CGContextBase), @selector( nanovgGL) },      // 750419bb;CGContextBase;3bd5fbf6;nanovgGL

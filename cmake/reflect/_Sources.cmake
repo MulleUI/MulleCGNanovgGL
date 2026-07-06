@@ -12,6 +12,7 @@ endif()
 #
 set( SOURCES
 src/CGBackendFunctionTable+nanovg.m
+src/CGContext+ImageEffect.m
 src/CGContext+nanovg-gl.m
 src/glad/glad_gl.c
 src/glad/mulle_glad_load.c

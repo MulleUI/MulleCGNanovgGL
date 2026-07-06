@@ -14,6 +14,7 @@
 
 
 #import "CGBackendFunctionTable+nanovg.h"
+#import "CGContext+ImageEffect.h"
 #import "MulleObjCDeps+MulleCGNanovgGL.h"
 
 

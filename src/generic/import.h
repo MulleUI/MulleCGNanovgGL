@@ -23,7 +23,8 @@
 # if __has_include( "_MulleCGNanovgGL-include.h")
 #   include "include.h"
 # endif
-#else
+#endif
+
 // OK need to do this all over again
 // this is for WIN32: specify global non-inlined functions and variables
 // like this (can not be declared inside functions!)
@@ -40,19 +41,18 @@
 // MULLE_CG_NANOVG_GL_GLOBAL
 // void   aGlobalFunction( void) {}
 //
-# ifndef MULLE_CG_NANOVG_GL_GLOBAL
-#  ifdef MULLE_CG_NANOVG_GL_BUILD
-#   define MULLE_CG_NANOVG_GL_GLOBAL       MULLE_C_GLOBAL
-#   define MULLE_CG_NANOVG_GL_GLOBAL_VAR   MULLE_C_GLOBAL
+#ifndef MULLE_CG_NANOVG_GL_GLOBAL
+# ifdef MULLE_CG_NANOVG_GL_BUILD
+#  define MULLE_CG_NANOVG_GL_GLOBAL       MULLE_C_GLOBAL
+#  define MULLE_CG_NANOVG_GL_GLOBAL_VAR   MULLE_C_GLOBAL
+# else
+#  if defined( MULLE_CG_NANOVG_GL_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_CG_NANOVG_GL_INCLUDE_STATIC))
+#   define MULLE_CG_NANOVG_GL_GLOBAL      MULLE_C_GLOBAL
 #  else
-#   if defined( MULLE_CG_NANOVG_GL_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_CG_NANOVG_GL_INCLUDE_STATIC))
-#    define MULLE_CG_NANOVG_GL_GLOBAL      MULLE_C_GLOBAL
-#   else
-#    define MULLE_CG_NANOVG_GL_GLOBAL      extern
-#   endif
+#   define MULLE_CG_NANOVG_GL_GLOBAL      extern
 #  endif
-#  define MULLE_CG_NANOVG_GL_GLOBAL_VAR    MULLE_C_GLOBAL
 # endif
+# define MULLE_CG_NANOVG_GL_GLOBAL_VAR    MULLE_C_GLOBAL
 #endif
 
 

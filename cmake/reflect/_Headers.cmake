@@ -63,6 +63,7 @@ src/generic/include.h
 #
 set( PUBLIC_HEADERS
 src/CGBackendFunctionTable+nanovg.h
+src/CGContext+ImageEffect.h
 src/MulleCGNanovgGL.h
 src/generic/MulleObjCDeps+MulleCGNanovgGL.h
 src/glad/gl.h

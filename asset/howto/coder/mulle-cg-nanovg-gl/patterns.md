@@ -71,3 +71,28 @@ n = CGContextTextBreakLines( context, text, -1, INFINITY,
 - In `src/gpu/CGContext+GPUShader-opengl.m`, shader compilation prepends the backend-specific `#version` header only when your source does not already have one.
 - That makes simple backend-local shaders easier to write; omit `#version` unless you need a deliberate override.
 - Keep `uniform` declarations plain `uniform type name;` if you want the simple local uniform parser to see them.
+
+## Create a path-only context for offline tessellation
+
+- Use `[CGContextBase createPathContext]` (`src/CGContext+nanovg-gl.m:276`) when you need NanoVG path operations without a GL drawing surface.
+- The resulting `CGContext` uses `NVG_PATH_ONLY` and has no backend function table (`.backendFunctions = NULL`).
+- This is useful for path hit testing, bounding box queries, or serialization before real rendering.
+
+```objc
+CGContext   *pathContext;
+
+pathContext = [CGContextBase createPathContext];
+// use [pathContext beginPath] etc.
+[pathContext autorelease];
+```
+
+## Check backend errors after raw GL calls
+
+- Use `CGContextCheckBackendError( self, "label")` or `[self assertNoBackendError:"label"]` after explicit GL calls in repo code.
+- The error check glGetError and log GL_INVALID_* errors to stderr with backend name, symbolic error, hex code, and the human string.
+- The check returns early if `_backend == UIGraphicsBackendNone` so it is safe in code paths that may run without a live context.
+
+```objc
+glGenFramebuffers( 1, &fbo);
+CGContextCheckBackendError( self, "glGenFramebuffers");
+```

@@ -1,0 +1,5 @@
+MulleCGNanovgGL provides the OpenGL implementation of the MulleCGNanovg backend.
+It fills the `CGBackendFunctionTable` with OpenGL calls for framebuffer creation,
+context setup and frame begin/end. It also bundles GLAD for OpenGL loading.
+
+Use this library when targeting desktop or OpenGL ES platforms.

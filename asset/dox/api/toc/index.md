@@ -38,7 +38,7 @@ query) so the core library can invoke backend operations without knowing which
 GPU API is active.
 
 **Font context sharing:** A `CGLayoutContext` (font-only NanoVG context) can be
-created independently via `createPathContext` or `_initFontNanovg`, and
+created independently via `pathContext` or `_initFontNanovg`, and
 protected by a FreeType mutex for thread safety.
 
 **Assertion-based enum mapping:** Compile-time `MULLE_C_ASSERT` macros verify
@@ -182,7 +182,7 @@ Same as `_checkBackendError:`.
 #### Category `CGContextBase(nanovgGL)` — Path Context Factory
 
 ```objc
-+ (CGContext *) createPathContext;
++ (CGContext *) pathContext;
 ```
 Creates a path-only NanoVG context (via `nvgCreateGL3/GLES2/GLES3` with `NVG_PATH_ONLY`) and wraps it in a `CGContext` via `_initAsPathContext` with `CGNanoVGFunctionTable` and no backend function table.
 
@@ -307,7 +307,7 @@ Standard mulle-objc dependency declaration. Required for proper classloader orde
 
 - **Best Practices:**
   - Do not call `_initNanovg` or `_doneNanovg` directly. These are called internally by the CGContext lifecycle (`_initNanoVGWithGraphicsOptions:nameUTF8String:`).
-  - Use `+[CGContextBase createPathContext]` to obtain a path-only CGContext for text layout without a full rendering context.
+  - Use `+[CGContextBase pathContext]` to obtain a path-only CGContext for text layout without a full rendering context.
   - For framebuffer readback, prefer `RGBABytesBitmapOfImage:allocator:` if you need CPU-side RGBA pixels. The returned `struct CGBitmap` owns its memory via the given allocator; free it with `mulle_allocator_free`.
   - When writing custom image-effect shaders, use `imageByRenderingImage:withShader:setupCallback:userInfo:` for flexibility beyond simple uniforms.
   - Always check for `CGImageFlagNearest` when rendering with image effects — the implementation forces `GL_NEAREST` during the effect pass and restores the original filter afterward.
@@ -315,13 +315,13 @@ Standard mulle-objc dependency declaration. Required for proper classloader orde
 - **Common Pitfalls:**
   - Do not access `_cgBackend`, `_fontContext`, `_backendFlags`, or `_framebufferBits` directly. These are internal ivars managed by the categories.
   - Do not call `CGNanoVGBackendFunctionTable` functions directly. The table is consumed by MulleCGNanovg internals via `CGContextBFN(self)->...` macros.
-  - The `createPathContext` factory method creates a context without a `CGBackendFunctionTable` (passes NULL). Path-only contexts cannot render framebuffers.
+  - The `pathContext` factory method creates a context without a `CGBackendFunctionTable` (passes NULL). Path-only contexts cannot render framebuffers.
   - `_checkBackendError:` asserts `err == GL_NO_ERROR` after its rate-limited print window. In debug builds, this aborts the process.
   - `RGBABytesBitmapOfImage:allocator:` adds 16 bytes of padding to the allocation to work around an NVIDIA bug. Do not rely on exact allocation size.
 
 - **Idiomatic Usage:**
   - Create a full rendering CGContext with `[[CGContext alloc] initWithOSGraphicsContext:window shareID:0 options:options] autorelease]`.
-  - Create a font-only context via `+[CGContextBase createPathContext]`.
+  - Create a font-only context via `+[CGContextBase pathContext]`.
   - Render to a framebuffer with `beginFBRenderWithBackgroundColor:devicePixelRatio:layerRenderInfo:` / `endFBRender:`.
   - Apply a post-processing shader with `imageByRenderingImage:withShader:setupCallback:userInfo:`.
 

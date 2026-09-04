@@ -74,16 +74,15 @@ n = CGContextTextBreakLines( context, text, -1, INFINITY,
 
 ## Create a path-only context for offline tessellation
 
-- Use `[CGContextBase createPathContext]` (`src/CGContext+nanovg-gl.m:276`) when you need NanoVG path operations without a GL drawing surface.
+- Use `[CGContextBase pathContext]` (`src/CGContext+nanovg-gl.m:276`) when you need NanoVG path operations without a GL drawing surface.
 - The resulting `CGContext` uses `NVG_PATH_ONLY` and has no backend function table (`.backendFunctions = NULL`).
 - This is useful for path hit testing, bounding box queries, or serialization before real rendering.
 
 ```objc
 CGContext   *pathContext;
 
-pathContext = [CGContextBase createPathContext];
+pathContext = [CGContextBase pathContext];
 // use [pathContext beginPath] etc.
-[pathContext autorelease];
 ```
 
 ## Check backend errors after raw GL calls

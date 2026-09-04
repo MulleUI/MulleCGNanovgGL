@@ -1,0 +1,34 @@
+{
+   project =
+   {
+      description="☄️ MulleCGNanovgGL is the OpenGL implementation of MulleCGNanovg";
+      domain="github";
+      language="c";
+      dialect="objc";
+      name="MulleCGNanovgGL";
+      user="MulleUI";
+      repo="MulleCGNanovgGL";
+      homepage="https://github.com/MulleUI/MulleCGNanovgGL";
+      license="UNLICENSED";
+      version="0.1.0";
+   };
+   dependencies =
+   (
+      {
+         description="🛰️ MulleCGNanovg is the nanovg rendering backend for MulleCG";
+         domain="github";
+         name="MulleCGNanovg";
+         repo="MulleCGNanovg";
+         url="https://github.com/MulleUI/MulleCGNanovg";
+         user="MulleUI";
+      },
+      {
+         description="📒 Lists mulle-objc runtime information contained in executables.";
+         domain="github";
+         name="mulle-objc-list";
+         repo="mulle-objc-list";
+         url="https://github.com/mulle-objc/mulle-objc-list";
+         user="mulle-objc";
+      }
+   );
+}

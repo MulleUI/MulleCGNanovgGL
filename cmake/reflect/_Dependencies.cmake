@@ -36,34 +36,41 @@ if( COLLECT_ALL_LOAD_DEPENDENCY_LIBRARIES_AS_NAMES)
    list( APPEND ALL_LOAD_DEPENDENCY_LIBRARIES "MulleCGNanovg")
 else()
    if( NOT MULLE_CG_NANOVG_LIBRARY)
-      find_library( MULLE_CG_NANOVG_LIBRARY NAMES
-         ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
-         ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${MULLE_PREFERRED_LIBRARY_SUFFIX}
-         ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
-         ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${MULLE_FALLBACK_LIBRARY_SUFFIX}
-         MulleCGNanovg
-         NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_FIND_ROOT_PATH
-      )
-      if( NOT MULLE_CG_NANOVG_LIBRARY AND NOT DEPENDENCY_IGNORE_SYSTEM_LIBARIES)
+      foreach( _TMP_MULLE_CG_NANOVG_LIBRARY_TARGET MulleCGNanovg)
+         if( TARGET ${_TMP_MULLE_CG_NANOVG_LIBRARY_TARGET})
+            set( MULLE_CG_NANOVG_LIBRARY ${_TMP_MULLE_CG_NANOVG_LIBRARY_TARGET})
+            break()
+         endif()
+      endforeach()
+      if( NOT MULLE_CG_NANOVG_LIBRARY)
          find_library( MULLE_CG_NANOVG_LIBRARY NAMES
             ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
             ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${MULLE_PREFERRED_LIBRARY_SUFFIX}
             ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
             ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${MULLE_FALLBACK_LIBRARY_SUFFIX}
             MulleCGNanovg
+            NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_FIND_ROOT_PATH
          )
+         if( NOT MULLE_CG_NANOVG_LIBRARY AND NOT DEPENDENCY_IGNORE_SYSTEM_LIBARIES)
+            find_library( MULLE_CG_NANOVG_LIBRARY NAMES
+               ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
+               ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${MULLE_PREFERRED_LIBRARY_SUFFIX}
+               ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
+               ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${MULLE_FALLBACK_LIBRARY_SUFFIX}
+               MulleCGNanovg
+            )
+         endif()
       endif()
       message( STATUS "MULLE_CG_NANOVG_LIBRARY is ${MULLE_CG_NANOVG_LIBRARY}")
-      #
-      # The order looks ascending, but due to the way this file is read
-      # it ends up being descending, which is what we need.
-      #
-      if( MULLE_CG_NANOVG_LIBRARY)
+   endif()
+   if( MULLE_CG_NANOVG_LIBRARY)
          #
          # Add MULLE_CG_NANOVG_LIBRARY to ALL_LOAD_DEPENDENCY_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark MulleCGNanovg no-cmake-add`
          #
-         list( APPEND ALL_LOAD_DEPENDENCY_LIBRARIES ${MULLE_CG_NANOVG_LIBRARY})
+         if( NOT ${MULLE_CG_NANOVG_LIBRARY} IN_LIST ALL_LOAD_DEPENDENCY_LIBRARIES)
+            list( APPEND ALL_LOAD_DEPENDENCY_LIBRARIES ${MULLE_CG_NANOVG_LIBRARY})
+         endif()
          #
          # Inherit information from dependency.
          # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
@@ -119,13 +126,12 @@ else()
                endif()
             endforeach()
          endif()
-      else()
-         # Disable with: `mulle-sourcetree mark MulleCGNanovg no-require-link`
-         message( SEND_ERROR "MULLE_CG_NANOVG_LIBRARY was not found in ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
+   else()
+      # Disable with: `mulle-sourcetree mark MulleCGNanovg no-require-link`
+      message( SEND_ERROR "MULLE_CG_NANOVG_LIBRARY was not found in ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
 ${MULLE_PREFERRED_LIBRARY_PREFIX}MulleCGNanovg${MULLE_PREFERRED_LIBRARY_SUFFIX}
 ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
 ${MULLE_FALLBACK_LIBRARY_PREFIX}MulleCGNanovg${MULLE_FALLBACK_LIBRARY_SUFFIX}
 MulleCGNanovg")
-      endif()
    endif()
 endif()

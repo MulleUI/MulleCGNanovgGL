@@ -68,6 +68,5 @@ src/MulleCGNanovgGL.h
 src/generic/MulleObjCDeps+MulleCGNanovgGL.h
 src/glad/gl.h
 src/glad/mulle_glad_load.h
-src/reflect/_MulleCGNanovgGL-versioncheck.h
 )
 
